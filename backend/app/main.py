@@ -14,7 +14,6 @@ from app.core.config import get_settings
 from app.core.exceptions import AppError
 from app.core.logging import logger
 from app.db.database import engine
-from app.models import Base
 from app.api.router import api_router
 from app.services.ai_client import close_ai_client
 
@@ -30,9 +29,6 @@ limiter = Limiter(key_func=get_remote_address)
 # ---------------------------------------------------------------------------
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    # Startup: create tables if they don't exist
-    async with engine.begin() as conn:
-        await conn.run_sync(Base.metadata.create_all)
     logger.info(
         "SpecForge backend started: port=%s env=%s",
         settings.APP_PORT, settings.APP_ENV,

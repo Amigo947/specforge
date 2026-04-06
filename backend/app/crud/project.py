@@ -33,11 +33,12 @@ async def get_project_by_id(db: AsyncSession, project_id: str) -> Project | None
 
 async def list_projects(
     db: AsyncSession,
+    user_id: str,
     page: int = 1,
     limit: int = 20,
     status: str | None = None,
 ) -> tuple[list[Project], int]:
-    where_clause = []
+    where_clause = [Project.user_id == user_id]
     if status:
         where_clause.append(Project.status == status)
 

@@ -19,34 +19,37 @@ async def create_project(db: AsyncSession, **kwargs):
     return await project_crud.create_project(db, **kwargs)
 
 
-async def get_project(db: AsyncSession, project_id: str):
+async def get_project(db: AsyncSession, project_id: str, user_id: str):
     project = await project_crud.get_project_by_id(db, project_id)
     if not project:
+        raise NotFoundError("Project")
+    if project.user_id != user_id:
         raise NotFoundError("Project")
     return project
 
 
 async def list_projects(
     db: AsyncSession,
+    user_id: str,
     page: int = 1,
     limit: int = 20,
     status: str | None = None,
 ):
-    return await project_crud.list_projects(db, page=page, limit=limit, status=status)
+    return await project_crud.list_projects(db, user_id=user_id, page=page, limit=limit, status=status)
 
 
-async def rename_project(db: AsyncSession, project_id: str, name: str):
-    await get_project(db, project_id)
+async def rename_project(db: AsyncSession, project_id: str, name: str, user_id: str):
+    await get_project(db, project_id, user_id)
     return await project_crud.update_project_name(db, project_id, name)
 
 
-async def delete_project(db: AsyncSession, project_id: str):
-    await get_project(db, project_id)
+async def delete_project(db: AsyncSession, project_id: str, user_id: str):
+    await get_project(db, project_id, user_id)
     return await project_crud.delete_project(db, project_id)
 
 
-async def parse_api(db: AsyncSession, project_id: str):
-    project = await get_project(db, project_id)
+async def parse_api(db: AsyncSession, project_id: str, user_id: str):
+    project = await get_project(db, project_id, user_id)
 
     await project_crud.update_project_status(db, project_id, ProjectStatus.PARSING)
 
@@ -105,8 +108,8 @@ async def parse_api(db: AsyncSession, project_id: str):
         raise
 
 
-async def generate_docs(db: AsyncSession, project_id: str):
-    project = await get_project(db, project_id)
+async def generate_docs(db: AsyncSession, project_id: str, user_id: str):
+    project = await get_project(db, project_id, user_id)
 
     if project.status not in (ProjectStatus.PARSED, ProjectStatus.COMPLETED):
         raise AppError(
@@ -181,7 +184,7 @@ async def generate_docs(db: AsyncSession, project_id: str):
         )
         logger.info("Documentation generated: project_id=%s", project_id)
 
-        return await get_project(db, project_id)
+        return await get_project(db, project_id, user_id)
 
     except Exception:
         await project_crud.update_project_status(db, project_id, ProjectStatus.FAILED)

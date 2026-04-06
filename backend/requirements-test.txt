@@ -1,0 +1,27 @@
+# ── Test framework ────────────────────────────────────────────────────────────
+pytest==8.3.3
+pytest-asyncio==0.24.0
+pytest-mock==3.14.0
+
+# ── Async HTTP client (FastAPI route tests) ───────────────────────────────────
+httpx==0.27.2                  # must match production version
+
+# ── Async SQLite driver (in-memory DB for CRUD/router tests) ─────────────────
+aiosqlite==0.20.0
+
+# ── Test utilities ────────────────────────────────────────────────────────────
+anyio==4.6.2                   # async primitives used by pytest-asyncio
+
+# ── Production dependencies also required at test time ───────────────────────
+# (install via: pip install -r requirements.txt -r requirements-test.txt)
+# Listed here as a reminder — do not pin duplicates of requirements.txt.
+#
+# fastapi==0.115.0
+# sqlalchemy[asyncio]==2.0.35
+# pydantic==2.9.2
+# pydantic-settings==2.5.2
+# python-jose[cryptography]==3.3.0
+# bcrypt==5.0.0
+# email-validator==2.2.0
+# slowapi==0.1.9
+# aiomysql==0.2.0   (imported at module level; must be importable even in tests)

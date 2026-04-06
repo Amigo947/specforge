@@ -1,4 +1,3 @@
-version: "3.9"
 
 services:
 
@@ -6,7 +5,7 @@ services:
   db:
     image: mysql:8.0
     restart: unless-stopped
-    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci
+    command: --character-set-server=utf8mb4 --collation-server=utf8mb4_unicode_ci --default-authentication-plugin=mysql_native_password
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-rootpassword}
       MYSQL_DATABASE:      ${DB_NAME:-specforge}
@@ -75,7 +74,7 @@ services:
     volumes:
       # Hot-reload: mount source so uvicorn --reload picks up changes
       - ./backend:/app
-    command: ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "3000", "--reload"]
+    command: ["sh", "-c", "python migrate.py && uvicorn app.main:app --host 0.0.0.0 --port 3000 --reload"]
     depends_on:
       db:
         condition: service_healthy
@@ -87,7 +86,7 @@ services:
       interval: 30s
       timeout: 10s
       retries: 3
-      start_period: 20s
+      start_period: 60s
 
   # ── Frontend ─────────────────────────────────────────────────────
   frontend:

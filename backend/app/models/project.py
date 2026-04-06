@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import TYPE_CHECKING
 
-from sqlalchemy import String, Text, Index, Enum as SAEnum
+from sqlalchemy import String, Text, Index, ForeignKey, Enum as SAEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -20,6 +20,7 @@ class Project(Base):
     __table_args__ = (
         Index("ix_projects_status", "status"),
         Index("ix_projects_created_at", "created_at"),
+        Index("ix_projects_user_id", "user_id"),
         {
             **Base.__table_args__,
         },
@@ -27,6 +28,9 @@ class Project(Base):
 
     id: Mapped[str] = mapped_column(
         String(30), primary_key=True, default=generate_cuid
+    )
+    user_id: Mapped[str] = mapped_column(
+        String(30), ForeignKey("users.id", ondelete="CASCADE"), nullable=False
     )
     name: Mapped[str] = mapped_column(String(100), nullable=False)
     description: Mapped[str | None] = mapped_column(String(500), nullable=True)
